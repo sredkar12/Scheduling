@@ -5,28 +5,27 @@ import java.util.*;
 public class TimerExample extends TimerTask {
 
     private static String name;
-    List<JobDetails> jobsQueue = new LinkedList<>();
-    private JobDetails jobDetails;
+    //List<JobDetails> jobsQueue = new LinkedList<>();
+    private JobContainer jobContainer;
 
-    public TimerExample(JobDetails jobDetails, List<JobDetails> que) {
+    public TimerExample(JobContainer jobContainer) {
+        this.jobContainer = jobContainer;
 
-        this.jobsQueue = que;
-        this.jobDetails = jobDetails;
     }
 
     @Override
     public void run() {
-        System.out.println(Thread.currentThread().getName() + " " + jobDetails.getJobName() + " will be added to Queue at " + new Date());
+        System.out.println(Thread.currentThread().getName() + " " + jobContainer.getJobDetails().getJobName() + " will be added to Queue at " + new Date());
 
 
-            synchronized (jobsQueue) {
-                jobDetails.setStatus("Queued");
-                jobsQueue.add(jobDetails);
-                jobsQueue.notifyAll();
+            synchronized (jobContainer) {
+                jobContainer.getJobDetails().setStatus("QUEUED");
+                //jobsQueue.add(jobDetails);
+                jobContainer.notifyAll();
             }
 
 
-        System.out.println("Leaving Timer  " + jobDetails.getJobName() + " at " + new Date() + " with " + jobDetails.getStatus());
+        System.out.println("Leaving Timer  " + jobContainer.getJobDetails().getJobName() + " at " + new Date() + " with " + jobContainer.getJobDetails().getStatus());
 
     }
 

@@ -9,7 +9,7 @@ public class DispatcherFramework {
     private JobDetails jobDetails;
 
     Queue<JobDetails> runningQueue = new LinkedList<>();
-    List<JobDetails> jobList = new ArrayList<>();
+    JobContainer jobContainer = new JobContainer();
     Producer producer ;
     TimerExample te1;
     Timer t ;
@@ -22,40 +22,31 @@ public class DispatcherFramework {
         t = new Timer();
     }
     void addJob(JobDetails job, Date date) {
-
-        te1 = new TimerExample(job, jobList);
+       jobContainer.setJobDetails(job);
+        te1 = new TimerExample(jobContainer);
         t.schedule(te1, date);
         try {
             Thread.sleep(1000l);
+        synchronized (jobContainer) {
+                jobContainer.wait();
+                if (job.getStatus() == "QUEUED") {
+                    runningQueue.add(jobContainer.getJobDetails());
+                }
+                jobContainer.notify();
+        }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        synchronized (jobList) {
-            try {
-                jobList.wait();
-                if (!jobList.isEmpty()) {
-                    job = jobList.remove(0);
-                    runningQueue.add(job);
-                }
-                jobList.notify();
-                Thread.sleep(1000L);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
 
-            if (firstTime && !runningQueue.isEmpty()) {
-                producer.start();
-                firstTime = false;
-            } else if (!producer.isAlive() && !runningQueue.isEmpty()) {
-                System.out.println("Prodcuer is not alive at " + new Date());
-                producer = new Producer(runningQueue);
-                producer.start();
-            } else {
-                if (producer.isAlive())
-                    System.out.println("Producer  is still running at  " + new Date());
-            }
-
+        if (firstTime && !runningQueue.isEmpty()) {
+            producer.start();
+            firstTime = false;
+        } else if (!producer.isAlive() && !runningQueue.isEmpty()) {
+            System.out.println(" .. WOW ..Producer is not alive at " + new Date() + "  starting Producer");
+            producer = new Producer(runningQueue);
+            producer.start();
         }
+        else;
 
 
     }

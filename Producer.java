@@ -21,10 +21,10 @@ public class Producer extends Thread {
                         System.out.println("Producer: current Q size before start propagation is " + taskQueue.size());
                         jobDetails = taskQueue.peek();
                         jobDetails.setStatus("RUNNING");
-                        System.out.println("Producer: job with " + jobDetails.getJobName() + " started at " + new Date());
-                        Thread.sleep(90000L);
+                        System.out.println("==============Producer: job with " + jobDetails.getJobName() + " started at " + new Date());
+                        Thread.sleep(130000L);
                         jobDetails.setStatus("COMPLETED");
-                        System.out.println("Producer: job with " + jobDetails.getJobName() + " completed at " + new Date());
+                        System.out.println("==============Producer: job with " + jobDetails.getJobName() + " completed at " + new Date());
                         System.out.println("Producer: current Q size after completion  is " + taskQueue.size());
                         taskQueue.remove();
 
